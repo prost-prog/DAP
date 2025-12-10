@@ -1,4 +1,3 @@
-// ===== Шаг 3.1: Объект состояния формы =====
 const formState = {
     values: {
         name: '',
@@ -15,7 +14,6 @@ const formState = {
     isValid: false
 };
 
-// ===== Шаг 3.2: Правила валидации =====
 const validationRules = {
     name(value) {
         if (!value.trim()) return 'Имя обязательно для заполнения';
@@ -40,7 +38,6 @@ const validationRules = {
     }
 };
 
-// ===== Вспомогательные элементы DOM =====
 const form = document.getElementById('registrationForm');
 const inputs = {
     name: document.getElementById('name'),
@@ -57,13 +54,11 @@ const errorElements = {
 const submitBtn = document.getElementById('submitBtn');
 const formMessage = document.getElementById('formMessage');
 
-// ===== Шаг 3.3: Живая валидация =====
 function validateField(fieldName, value) {
     const error = validationRules[fieldName](value);
     formState.errors[fieldName] = error;
     formState.values[fieldName] = value;
 
-    // Обновляем интерфейс поля
     const input = inputs[fieldName];
     if (input.type === 'checkbox') {
         errorElements[fieldName].textContent = error;
@@ -73,7 +68,6 @@ function validateField(fieldName, value) {
         input.classList.toggle('error', !!error);
     }
 
-    // Проверяем общую валидность формы
     updateFormValidity();
 }
 
@@ -81,41 +75,51 @@ function updateFormValidity() {
     const hasErrors = Object.values(formState.errors).some(error => error !== '');
     formState.isValid = !hasErrors;
 
-    // Активируем/деактивируем кнопку
     submitBtn.disabled = !formState.isValid;
     submitBtn.classList.toggle('active', formState.isValid);
 }
 
-// Навешиваем обработчики
+
 inputs.name.addEventListener('input', (e) => validateField('name', e.target.value));
 inputs.email.addEventListener('input', (e) => validateField('email', e.target.value));
 inputs.password.addEventListener('input', (e) => validateField('password', e.target.value));
 inputs.agree.addEventListener('change', (e) => validateField('agree', e.target.checked));
 
-// ===== Шаг 3.5: Обработка отправки формы =====
+
 form.addEventListener('submit', (e) => {
     e.preventDefault();
 
     if (formState.isValid) {
-        // Показываем сообщение об успехе
         formMessage.textContent = 'Регистрация прошла успешно! Добро пожаловать!';
         formMessage.className = 'form-message success';
-        
-        // Опционально: можно сбросить форму и состояние через пару секунд
+        formMessage.style.display = 'block';
+
         setTimeout(() => {
             form.reset();
-            // Сброс состояния
+
+
             formState.values = { name: '', email: '', password: '', agree: false };
             formState.errors = { name: '', email: '', password: '', agree: '' };
             formState.isValid = false;
-// Скрыть ошибки
+
             Object.values(errorElements).forEach(el => el.textContent = '');
             Object.values(inputs).forEach(input => {
-                if (input.type !== 'checkbox') input.classList.remove('error');
+                if (input.type !== 'checkbox') {
+                    input.classList.remove('error');
+                } else {
+                    input.parentElement.style.color = '';
+                }
             });
+
+
             submitBtn.disabled = true;
             submitBtn.classList.remove('active');
             formMessage.style.display = 'none';
         }, 3000);
     }
 });
+
+validateField('name', '');
+validateField('email', '');
+validateField('password', '');
+validateField('agree', false);
